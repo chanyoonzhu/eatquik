@@ -99,3 +99,13 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# aws lambda
+# pip config
+setup.cfg
+
+eatquik.zip
+
+
+
+
