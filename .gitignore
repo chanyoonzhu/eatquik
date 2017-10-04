@@ -104,7 +104,7 @@ ENV/
 # pip config
 setup.cfg
 
-eatquik.zip
+*.zip
 
 
 

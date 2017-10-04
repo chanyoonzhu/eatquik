@@ -10,11 +10,20 @@ http://amzn.to/1LGWsLG
 from __future__ import print_function
 import requests
 import json
+#import helpers.userAddress
 
 
 # --------------- Helpers that build all of the responses ----------------------
-url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=AIzaSyBOimD8S4Ifw8o1XBEEFO7YKylK9d0sSJk'
-r = requests.get(url)
+#url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=AIzaSyBOimD8S4Ifw8o1XBEEFO7YKylK9d0sSJk'
+#r = requests.get(url)
+userAddress = ''
+"""
+'card': {
+    'type': 'Simple',
+    'title': "SessionSpeechlet - " + title,
+    'content': "SessionSpeechlet - " + output
+},
+"""
 
 
 def build_speechlet_response(title, output, reprompt_text, should_end_session):
@@ -23,10 +32,11 @@ def build_speechlet_response(title, output, reprompt_text, should_end_session):
             'type': 'PlainText',
             'text': output
         },
-        'card': {
-            'type': 'Simple',
-            'title': "SessionSpeechlet - " + title,
-            'content': "SessionSpeechlet - " + output
+        "card": {
+          "type": "AskForPermissionsConsent",
+          "permissions": [
+            "read::alexa:device:all:address"
+          ]
         },
         'reprompt': {
             'outputSpeech': {
@@ -55,11 +65,12 @@ def get_welcome_response():
 
     session_attributes = {}
     card_title = "Welcome"
-    speech_output = r.json()['results'][0]['name']
+    # speech_output = r.json()['results'][0]['name']
+    speech_output = "Welcome to Eatquick"
     # If the user either does not reply to the welcome message or says something
     # that is not understood, they will be prompted again with this text.
     reprompt_text = ""
-    should_end_session = True
+    should_end_session = False
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
@@ -94,7 +105,69 @@ def on_launch(launch_request, session):
     # Dispatch to your skill's launch
     return get_welcome_response()
 
+def on_intent(intent_request, session, context):
+    intent = intent_request["intent"]
+    intent_name = intent_request["intent"]["name"]
+    if intent_name == 'GetNearbyRestaurants':
+        deviceId = ''
+        consentToken = ''
 
+        try:
+            deviceId = context['System']['device']['deviceId'] 
+            consentToken = context['System']['user']['permissions']['consentToken']
+        except:
+            deviceId = ''
+            consentToken = ''
+        
+        if not (deviceId and consentToken):
+            # user permission not granted, send out prompt message and a new permission card
+            session_attributes = {}
+            card_title = ''
+            reprompt_text = ''
+            should_end_session = True
+            speech_output = 'eatquick cannot function without address information. '\
+            'To permit access to address information, enable eatquick again, and consent to provide address information in the Alexa app.'
+
+            return build_response(session_attributes, build_speechlet_response(
+            card_title, speech_output, reprompt_text, should_end_session))
+        
+        else:
+        
+            deviceId = context['System']['device']['deviceId'] 
+            consentToken = context['System']['user']['permissions']['consentToken']
+        
+            URL =  "https://api.amazonalexa.com/v1/devices/{}/settings" \
+                "/address".format(deviceId)
+            HEADER = {'Accept': 'application/json',
+                    'Authorization': 'Bearer {}'.format(consentToken)}
+            response = requests.get(URL, headers=HEADER)
+            
+            if response.status_code == 200:
+                response = response.json()
+                userAddress = response['addressLine1']
+                userAddress += ','.join(filter(None, (response['city'], response['stateOrRegion'])))
+                userAddress = userAddress.replace(' ', '+')
+
+            session_attributes = {}
+            card_title = "device info"
+            reprompt_text = ""
+            should_end_session = True
+        
+            speech_output = userAddress
+        
+            return build_response(session_attributes, build_speechlet_response(
+                card_title, speech_output, reprompt_text, should_end_session))
+    else:
+        session_attributes = {}
+        card_title = "device info"
+        reprompt_text = ""
+        should_end_session = True
+    
+        #speech_output = "device id: " + deviceId + "consent token: " + consentToken
+        speech_output = "device id: consent token "
+    
+        return build_response(session_attributes, build_speechlet_response(
+            card_title, speech_output, reprompt_text, should_end_session))
 
 def on_session_ended(session_ended_request, session):
     """ Called when the user ends the session.
@@ -128,11 +201,14 @@ def lambda_handler(event, context):
     if event['session']['new']:
         on_session_started({'requestId': event['request']['requestId']},
                            event['session'])
-
     if event['request']['type'] == "LaunchRequest":
+        """
+        code
+        """
+        # userAddress = get_user_address(event['context']['system'])
         return on_launch(event['request'], event['session'])
     elif event['request']['type'] == "IntentRequest":
-        return on_intent(event['request'], event['session'])
+        return on_intent(event['request'], event['session'],event['context'])
     elif event['request']['type'] == "SessionEndedRequest":
         return on_session_ended(event['request'], event['session'])
 
