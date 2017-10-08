@@ -1,0 +1,16 @@
+{
+  "intents": [
+    {
+      "intent": "GetNearbyRestaurants"
+    },
+    {
+      "intent": "GetRestaurantInfo",
+      "slots": [
+        {
+          "name": "restaurant",
+          "type": "AMAZON.LITERAL"
+        }
+      ]
+    }
+  ]
+}

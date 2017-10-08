@@ -1,0 +1,6 @@
+GetNearbyRestaurants get address
+GetNearbyRestaurants what is my address
+
+GetRestaurantInfo more about {hello|restaurant}
+GetRestaurantInfo more about {hi there|restaurant}
+GetRestaurantInfo more about {what a burger|restaurant}

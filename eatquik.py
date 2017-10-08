@@ -17,23 +17,16 @@ import json
 from yelpcall import query_api
 
 
-query_api('restaurant', '303 Wadsack Dr, Norman, Oklahoma')
+#query_api('restaurant', '303 Wadsack Dr, Norman, Oklahoma')
+
 
 # --------------- Helpers that build all of the responses ----------------------
 #url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=AIzaSyBOimD8S4Ifw8o1XBEEFO7YKylK9d0sSJk'
 #r = requests.get(url)
 
 userAddress = ''
-"""
-'card': {
-    'type': 'Simple',
-    'title': "SessionSpeechlet - " + title,
-    'content': "SessionSpeechlet - " + output
-},
-"""
 
-
-def build_speechlet_response(title, output, reprompt_text, should_end_session):
+def build_ask_permission_response(title, output, reprompt_text, should_end_session):
     return {
         'outputSpeech': {
             'type': 'PlainText',
@@ -44,6 +37,27 @@ def build_speechlet_response(title, output, reprompt_text, should_end_session):
           "permissions": [
             "read::alexa:device:all:address"
           ]
+        },
+        'reprompt': {
+            'outputSpeech': {
+                'type': 'PlainText',
+                'text': reprompt_text
+            }
+        },
+        'shouldEndSession': should_end_session
+    }
+
+
+def build_speechlet_response(title, output, reprompt_text, should_end_session):
+    return {
+        'outputSpeech': {
+            'type': 'PlainText',
+            'text': output
+        },
+       'card': {
+            'type': 'Simple',
+            'title': "SessionSpeechlet - " + title,
+            'content': "SessionSpeechlet - " + output
         },
         'reprompt': {
             'outputSpeech': {
@@ -78,7 +92,7 @@ def get_welcome_response():
     # that is not understood, they will be prompted again with this text.
     reprompt_text = ""
     should_end_session = False
-    return build_response(session_attributes, build_speechlet_response(
+    return build_response(session_attributes, build_ask_permission_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
 
@@ -164,14 +178,15 @@ def on_intent(intent_request, session, context):
         
             return build_response(session_attributes, build_speechlet_response(
                 card_title, speech_output, reprompt_text, should_end_session))
-    else:
+    elif intent_name == 'GetRestaurantInfo':
+        restaurant = intent['slots']['restaurant']['value']
         session_attributes = {}
-        card_title = "device info"
+        card_title = "restaurant info: " + restaurant 
         reprompt_text = ""
         should_end_session = True
     
         #speech_output = "device id: " + deviceId + "consent token: " + consentToken
-        speech_output = "device id: consent token "
+        speech_output = "name: " + restaurant
     
         return build_response(session_attributes, build_speechlet_response(
             card_title, speech_output, reprompt_text, should_end_session))
