@@ -14,17 +14,50 @@ from __future__ import print_function
 import env
 import requests
 import json
+import pprint
 from yelpcall import query_api
+from userinfo import get_user_address
+from responsehandler import handle_response
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
+
+"""
+global variable for nearby restaurants
+"""
+restaurants_obj = None
+restaurant_namelist = []
+restaurant_infocus = None
+
+response = query_api('restaurant', '303 Wadsack Dr, Norman, Oklahoma')
+restaurants = handle_response(response)
+restaurants_obj = restaurants
+for restaurant in restaurants:
+    restaurant_namelist.append(restaurant['name'])
+result = process.extractOne("John John Milk Tea", restaurant_namelist)[0]
+for restaurant in restaurants_obj:
+    if restaurant['name'] == result:
+        restaurant_infocus = restaurant
+output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating'])
+print (output_text)
 
 
-#query_api('restaurant', '303 Wadsack Dr, Norman, Oklahoma')
+# card = {
+#     "type": "Standard",
+#     "title": "restaurants",
+#     "text": restaurants[0]['name'] + "\n",
+#     "image": {
+#         "smallImageUrl": "http://s3-media2.fl.yelpcdn.com/bphoto/MmgtASP3l_t4tPCL1iAsCg/o.jpg",
+#         "largeImageUrl": "http://s3-media2.fl.yelpcdn.com/bphoto/MmgtASP3l_t4tPCL1iAsCg/o.jpg"
+#     }
+# }
+
+# obj = build_card_response(card, "haha", " ", True)
+# print(obj['outputSpeech']['text'])
 
 
 # --------------- Helpers that build all of the responses ----------------------
 #url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=AIzaSyBOimD8S4Ifw8o1XBEEFO7YKylK9d0sSJk'
 #r = requests.get(url)
-
-userAddress = ''
 
 def build_ask_permission_response(title, output, reprompt_text, should_end_session):
     return {
@@ -47,6 +80,23 @@ def build_ask_permission_response(title, output, reprompt_text, should_end_sessi
         'shouldEndSession': should_end_session
     }
 
+def build_card_response(card, output, reprompt_text, should_end_session):
+    response = {
+        'outputSpeech': {
+            'type': 'PlainText',
+            'text': output
+        },
+        'reprompt': {
+            'outputSpeech': {
+                'type': 'PlainText',
+                'text': reprompt_text
+            }
+        },
+        'shouldEndSession': should_end_session
+    }
+    response['card'] = card
+
+    return response
 
 def build_speechlet_response(title, output, reprompt_text, should_end_session):
     return {
@@ -127,20 +177,58 @@ def on_launch(launch_request, session):
     return get_welcome_response()
 
 def on_intent(intent_request, session, context):
+
     intent = intent_request["intent"]
     intent_name = intent_request["intent"]["name"]
-    if intent_name == 'GetNearbyRestaurants':
-        deviceId = ''
-        consentToken = ''
 
-        try:
-            deviceId = context['System']['device']['deviceId'] 
-            consentToken = context['System']['user']['permissions']['consentToken']
-        except:
-            deviceId = ''
-            consentToken = ''
+    if intent_name == 'GetNearbyRestaurants':
+
+        address = get_user_address(context)
+
+        if address:
+            
+            """
+            restaurant info
+            """
+            response = query_api('restaurant', address)
+            restaurants = handle_response(response)
+                
+            if restaurants:
+
+                # add to global restaurants_obj variable
+                restaurants_obj = restaurants
+                output_text = ""
+                for restaurant in restaurants:
+                    restaurant_namelist.append(restaurant['name'])
+                    # output_text += restaurant['name'] + ' .'
+
+                """
+                todo - after testing, delete next line and use commented line right above
+                """
+                output_text = restaurants_obj[0]['name']   
+
+                card = {
+                    "type": "Standard",
+                    "title": "restaurants",
+                    "text": restaurants[0]['name'] + "\n",
+                    "image": {
+                        "smallImageUrl": "https://s3-media2.fl.yelpcdn.com/bphoto/MmgtASP3l_t4tPCL1iAsCg/o.jpg",
+                        "largeImageUrl": "https://s3-media2.fl.yelpcdn.com/bphoto/MmgtASP3l_t4tPCL1iAsCg/o.jpg"
+                    }
+                }
+
+                session_attributes = {}
+                reprompt_text = ""
+                should_end_session = False
+                speech_output = output_text
+
+                return build_response(session_attributes, build_card_response(card, speech_output, reprompt_text, should_end_session))
+
+            #else:
+                # fallback response
         
-        if not (deviceId and consentToken):
+            
+        else:
             # user permission not granted, send out prompt message and a new permission card
             session_attributes = {}
             card_title = ''
@@ -151,42 +239,31 @@ def on_intent(intent_request, session, context):
 
             return build_response(session_attributes, build_speechlet_response(
             card_title, speech_output, reprompt_text, should_end_session))
-        
-        else:
-        
-            deviceId = context['System']['device']['deviceId'] 
-            consentToken = context['System']['user']['permissions']['consentToken']
-        
-            URL =  "https://api.amazonalexa.com/v1/devices/{}/settings" \
-                "/address".format(deviceId)
-            HEADER = {'Accept': 'application/json',
-                    'Authorization': 'Bearer {}'.format(consentToken)}
-            response = requests.get(URL, headers=HEADER)
-            
-            if response.status_code == 200:
-                response = response.json()
-                userAddress = response['addressLine1']
-                userAddress += ','.join(filter(None, (response['city'], response['stateOrRegion'])))
-                userAddress = userAddress.replace(' ', '+')
 
-            session_attributes = {}
-            card_title = "device info"
-            reprompt_text = ""
-            should_end_session = True
-        
-            speech_output = userAddress
-        
-            return build_response(session_attributes, build_speechlet_response(
-                card_title, speech_output, reprompt_text, should_end_session))
     elif intent_name == 'GetRestaurantInfo':
-        restaurant = intent['slots']['restaurant']['value']
+        fuzzy_restaurant = intent['slots']['restaurant']['value']
+
+        """
+        matching with global restaurants_namelist and store in restaurant_infocus obj
+        """
+
+        """
+        todo - fix bugs in comments below
+        """
+        # restaurant = process.extractOne(fuzzy_restaurant, restaurant_namelist)[0]
+        output_text = fuzzy_restaurant
+        # for item in restaurants_obj:
+        #     if item['name'] == restaurant:
+        #         restaurant_infocus = item
+        # # output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating']) #+ restaurant_infocus['is_closed'] == False
+
         session_attributes = {}
-        card_title = "restaurant info: " + restaurant 
+        card_title = "restaurant info: " #+ restaurant_infocus
         reprompt_text = ""
-        should_end_session = True
+        should_end_session = False
     
         #speech_output = "device id: " + deviceId + "consent token: " + consentToken
-        speech_output = "name: " + restaurant
+        speech_output = output_text
     
         return build_response(session_attributes, build_speechlet_response(
             card_title, speech_output, reprompt_text, should_end_session))

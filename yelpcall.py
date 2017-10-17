@@ -55,8 +55,9 @@ GRANT_TYPE = 'client_credentials'
 # Defaults for our simple example.
 DEFAULT_TERM = 'dinner'
 DEFAULT_LOCATION = 'San Francisco, CA'
-SEARCH_LIMIT = 3
-
+SEARCH_LIMIT = 10
+SEARCH_RADIUS = 1500
+SEARCH_SORTING = 'rating'
 
 def obtain_bearer_token(host, path):
     """Given a bearer token, send a GET request to the API.
@@ -130,7 +131,9 @@ def search(bearer_token, term, location):
     url_params = {
         'term': term.replace(' ', '+'),
         'location': location.replace(' ', '+'),
-        'limit': SEARCH_LIMIT
+        'limit': SEARCH_LIMIT,
+        'radius': SEARCH_RADIUS,
+        'sort_by': SEARCH_SORTING
     }
     return request(API_HOST, SEARCH_PATH, bearer_token, url_params=url_params)
 
@@ -166,15 +169,7 @@ def query_api(term, location):
         print(u'No businesses for {0} in {1} found.'.format(term, location))
         return
 
-    business_id = businesses[0]['id']
-
-    print(u'{0} businesses found, querying business info ' \
-        'for the top result "{1}" ...'.format(
-            len(businesses), business_id))
-    response = get_business(bearer_token, business_id)
-
-    print(u'Result for business "{0}" found:'.format(business_id))
-    pprint.pprint(response, indent=2)
+    return response
 
 
 def main():
