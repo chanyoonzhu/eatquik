@@ -1,6 +1,37 @@
-GetNearbyRestaurants get address
-GetNearbyRestaurants what is my address
+GetNearbyRestaurants give me restaurants nearby
+GetNearbyRestaurants give me restaurants close by
+GetNearbyRestaurants what are the restaurants nearby
+GetNearbyRestaurants what are the restaurants close by
 
-GetRestaurantInfo more about {hello|restaurant}
-GetRestaurantInfo more about {hi there|restaurant}
-GetRestaurantInfo more about {what a burger|restaurant}
+GetRestaurantInfo tell me more about {IHOP|restaurant}
+GetRestaurantInfo tell me more about {papa john's|restaurant}
+GetRestaurantInfo tell me more about {what a burger|restaurant}
+
+GetRestaurantCategory what food does {IHOP|restaurantcategory} serve
+GetRestaurantCategory what food does {papa john's|restaurantcategory} serve
+GetRestaurantCategory what food does {what a burger|restaurantcategory} serve
+
+GetRestaurantNumber what's the phone number for {IHOP|restaurantnumber}
+GetRestaurantNumber what's the phone number for {papa john's|restaurantnumber}
+GetRestaurantNumber what's the phone number for {what a burger|restaurantnumber}
+
+GetRestaurantStatus is {IHOP|restaurantstatus} open
+GetRestaurantStatus is {papa john's|restaurantstatus} open
+GetRestaurantStatus is {what a burger|restaurantstatus} open
+GetRestaurantStatus is {IHOP|restaurantstatus} closed 
+GetRestaurantStatus is {papa john's|restaurantstatus} closed
+GetRestaurantStatus is {what a burger|restaurantstatus} closed
+
+GetRestaurantAddress what is the address of {IHOP|restaurantaddress}
+GetRestaurantAddress what is the address of {papa john's|restaurantaddress}
+GetRestaurantAddress what is the address of {what a burger|restaurantaddress}
+GetRestaurantAddress where is {IHOP|restaurantaddress}
+GetRestaurantAddress where is {papa john's|restaurantaddress}
+GetRestaurantAddress where is {what a burger|restaurantaddress}
+
+GetDeliveryTime get delivery time for {IHOP|deliverytime}
+GetDeliveryTime get delivery time for {papa john's|deliverytime}
+GetDeliveryTime get delivery time for {what a burger|deliverytime}
+GetDeliveryTime how long to deliver {IHOP|deliverytime}
+GetDeliveryTime how long to deliver {papa john's|deliverytime}
+GetDeliveryTime how long to deliver {what a burger|deliverytime}

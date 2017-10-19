@@ -11,6 +11,46 @@
           "type": "AMAZON.LITERAL"
         }
       ]
+    }, {
+      "intent": "GetRestaurantCategory",
+      "slots": [
+        {
+          "name": "restaurantcategory",
+          "type": "AMAZON.LITERAL"
+        }
+      ]
+    },{
+      "intent": "GetRestaurantNumber",
+      "slots": [
+        {
+          "name": "restaurantnumber",
+          "type": "AMAZON.LITERAL"
+        }
+      ]
+    },{
+      "intent": "GetRestaurantStatus",
+      "slots": [
+        {
+          "name": "restaurantstatus",
+          "type": "AMAZON.LITERAL"
+        }
+      ]
+    },{
+      "intent": "GetRestaurantAddress",
+      "slots": [
+        {
+          "name": "restaurantaddress",
+          "type": "AMAZON.LITERAL"
+        }
+      ]
+    },{
+      "intent": "GetDeliveryTime",
+      "slots": [
+        {
+          "name": "deliverytime",
+          "type": "AMAZON.LITERAL"
+        }
+      ]
     }
   ]
 }
