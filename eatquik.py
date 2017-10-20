@@ -28,14 +28,15 @@ global variable for nearby restaurants
 # restaurants = get_restaurants_list('401 W Brooks St, Norman, OK, US 73019', 49)
 # for restaurant in restaurants:
 #     restaurant_namelist.append(restaurant['name'])
-#     print(restaurant['name'] + ' ')
+#     # print(restaurant['name'] + ' ')
 # fuzzy_restaurant = "fusion cafe"
 # result = match_fuzzy_string(fuzzy_restaurant, restaurant_namelist)
 # print('result: ' + str(result) + 'fuzzy string: ' + str(fuzzy_restaurant))
 # for restaurant in restaurants:
 #     if restaurant['name'] == result:
 #         restaurant_infocus = restaurant
-# output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating'])
+# # output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating'])
+# # output_text = restaurant_infocus['phone']
 # print (output_text)
 
 
@@ -285,9 +286,30 @@ def on_intent(intent_request, session, context):
                     for item in restaurants:
                         if item['name'] == restaurant:
                             restaurant_infocus = item
-                    output_text = (restaurant_infocus['name'] 
-                                    + ' . rating . ' + str(restaurant_infocus['rating']) 
-                                    + '. and is open now .' if (restaurant_infocus['is_closed'] == False) else '. and is closed now .')
+
+                    if intent_name == 'GetRestaurantInfo':
+                        output_text = (restaurant_infocus['name'] 
+                                        + ' . rating . ' + str(restaurant_infocus['rating']) 
+                                        + '. and is open now .' if (restaurant_infocus['is_closed'] == False) else '. and is closed now .')
+                    elif intent_name == 'GetRestaurantCategory':
+                        categories = restaurant_infocus['categories']
+                        for category in categories:
+                            output_text += category['title'] + '. .'
+                    elif intent_name == 'GetRestaurantNumber':
+                        output_text = 'The phone number for ' + restaurant_infocus['name'] + ' is '
+                        phone_num = restaurant_infocus['phone']
+                        phone_digits = list(phone_num)
+                        phone_digits.pop(0) # get rid of + before country code
+                        for digit in phone_digits:
+                            output_text += (digit + ' ')
+                    elif intent_name == 'GetRestaurantStatus':
+                        output_text = restaurant_infocus['name']
+                        output_text += '. is now open .' if (restaurant_infocus['is_closed'] == False) else '. and is closed now .'
+                    elif intent_name == 'GetRestaurantAddress':
+                        output_text = restaurant_infocus['name'] + " . is located at . "
+                        address_lines = restaurant_infocus['location']['display_address']
+                        for line in address_lines:
+                            output_text += (line + " . ")
 
                     session_attributes = {}
                     card_title = "restaurant info: " #+ restaurant_infocus
