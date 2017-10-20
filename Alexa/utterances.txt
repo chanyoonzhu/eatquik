@@ -7,31 +7,31 @@ GetRestaurantInfo tell me more about {IHOP|restaurant}
 GetRestaurantInfo tell me more about {papa john's|restaurant}
 GetRestaurantInfo tell me more about {what a burger|restaurant}
 
-GetRestaurantCategory what food does {IHOP|restaurantcategory} serve
-GetRestaurantCategory what food does {papa john's|restaurantcategory} serve
-GetRestaurantCategory what food does {what a burger|restaurantcategory} serve
+GetRestaurantCategory what food does {IHOP|restaurant} serve
+GetRestaurantCategory what food does {papa john's|restaurant} serve
+GetRestaurantCategory what food does {what a burger|restaurant} serve
 
-GetRestaurantNumber what's the phone number for {IHOP|restaurantnumber}
-GetRestaurantNumber what's the phone number for {papa john's|restaurantnumber}
-GetRestaurantNumber what's the phone number for {what a burger|restaurantnumber}
+GetRestaurantNumber what's the phone number for {IHOP|restaurant}
+GetRestaurantNumber what's the phone number for {papa john's|restaurant}
+GetRestaurantNumber what's the phone number for {what a burger|restaurant}
 
-GetRestaurantStatus is {IHOP|restaurantstatus} open
-GetRestaurantStatus is {papa john's|restaurantstatus} open
-GetRestaurantStatus is {what a burger|restaurantstatus} open
-GetRestaurantStatus is {IHOP|restaurantstatus} closed 
-GetRestaurantStatus is {papa john's|restaurantstatus} closed
-GetRestaurantStatus is {what a burger|restaurantstatus} closed
+GetRestaurantStatus is {IHOP|restaurant} open
+GetRestaurantStatus is {papa john's|restaurant} open
+GetRestaurantStatus is {what a burger|restaurant} open
+GetRestaurantStatus is {IHOP|restaurant} closed 
+GetRestaurantStatus is {papa john's|restaurant} closed
+GetRestaurantStatus is {what a burger|restaurant} closed
 
-GetRestaurantAddress what is the address of {IHOP|restaurantaddress}
-GetRestaurantAddress what is the address of {papa john's|restaurantaddress}
-GetRestaurantAddress what is the address of {what a burger|restaurantaddress}
-GetRestaurantAddress where is {IHOP|restaurantaddress}
-GetRestaurantAddress where is {papa john's|restaurantaddress}
-GetRestaurantAddress where is {what a burger|restaurantaddress}
+GetRestaurantAddress what is the address of {IHOP|restaurant}
+GetRestaurantAddress what is the address of {papa john's|restaurant}
+GetRestaurantAddress what is the address of {what a burger|restaurant}
+GetRestaurantAddress where is {IHOP|restaurant}
+GetRestaurantAddress where is {papa john's|restaurant}
+GetRestaurantAddress where is {what a burger|restaurant}
 
-GetDeliveryTime get delivery time for {IHOP|deliverytime}
-GetDeliveryTime get delivery time for {papa john's|deliverytime}
-GetDeliveryTime get delivery time for {what a burger|deliverytime}
-GetDeliveryTime how long to deliver {IHOP|deliverytime}
-GetDeliveryTime how long to deliver {papa john's|deliverytime}
-GetDeliveryTime how long to deliver {what a burger|deliverytime}
+GetDeliveryTime get delivery time for {IHOP|restaurant}
+GetDeliveryTime get delivery time for {papa john's|restaurant}
+GetDeliveryTime get delivery time for {what a burger|restaurant}
+GetDeliveryTime how long to deliver {IHOP|restaurant}
+GetDeliveryTime how long to deliver {papa john's|restaurant}
+GetDeliveryTime how long to deliver {what a burger|restaurant}

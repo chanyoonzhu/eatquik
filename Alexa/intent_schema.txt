@@ -15,7 +15,7 @@
       "intent": "GetRestaurantCategory",
       "slots": [
         {
-          "name": "restaurantcategory",
+          "name": "restaurant",
           "type": "AMAZON.LITERAL"
         }
       ]
@@ -23,7 +23,7 @@
       "intent": "GetRestaurantNumber",
       "slots": [
         {
-          "name": "restaurantnumber",
+          "name": "restaurant",
           "type": "AMAZON.LITERAL"
         }
       ]
@@ -31,7 +31,7 @@
       "intent": "GetRestaurantStatus",
       "slots": [
         {
-          "name": "restaurantstatus",
+          "name": "restaurant",
           "type": "AMAZON.LITERAL"
         }
       ]
@@ -39,7 +39,7 @@
       "intent": "GetRestaurantAddress",
       "slots": [
         {
-          "name": "restaurantaddress",
+          "name": "restaurant",
           "type": "AMAZON.LITERAL"
         }
       ]
@@ -47,7 +47,7 @@
       "intent": "GetDeliveryTime",
       "slots": [
         {
-          "name": "deliverytime",
+          "name": "restaurant",
           "type": "AMAZON.LITERAL"
         }
       ]

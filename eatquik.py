@@ -17,27 +17,22 @@ import json
 import pprint
 from userinfo import get_user_address
 from restaurantslist import get_restaurants_list
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
+from fuzzymatching import match_fuzzy_string
 
 """
 global variable for nearby restaurants
 """
-# restaurants_obj = None
 # restaurant_namelist = []
 # restaurant_infocus = None
 
-# restaurants = get_restaurants_list('401 W Brooks St, Norman, OK, US 73019', 50)
-# restaurants_obj = restaurants
+# restaurants = get_restaurants_list('401 W Brooks St, Norman, OK, US 73019', 49)
 # for restaurant in restaurants:
 #     restaurant_namelist.append(restaurant['name'])
 #     print(restaurant['name'] + ' ')
-# fuzzy_restaurant = "taddei"
-# result = process.extractOne(fuzzy_restaurant, restaurant_namelist)[0]
-# print('result: ' + result + 'fuzzy string: ' + fuzzy_restaurant)
-# ratio = fuzz.token_set_ratio(result.lower(), fuzzy_restaurant.lower())
-# print(ratio)
-# for restaurant in restaurants_obj:
+# fuzzy_restaurant = "fusion cafe"
+# result = match_fuzzy_string(fuzzy_restaurant, restaurant_namelist)
+# print('result: ' + str(result) + 'fuzzy string: ' + str(fuzzy_restaurant))
+# for restaurant in restaurants:
 #     if restaurant['name'] == result:
 #         restaurant_infocus = restaurant
 # output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating'])
@@ -254,7 +249,12 @@ def on_intent(intent_request, session, context):
             return build_response(session_attributes, build_speechlet_response(
             card_title, speech_output, reprompt_text, should_end_session))
 
-    elif intent_name == 'GetRestaurantInfo':
+    elif intent_name == 'GetRestaurantInfo' or intent_name == 'GetRestaurantCategory' or \
+        intent_name == 'GetRestaurantNumber' or \
+        intent_name == 'GetRestaurantStatus' or \
+        intent_name == 'GetRestaurantAddress' or \
+        intent_name == 'GetDeliveryTime': 
+
         # string from Alexa literal string
         fuzzy_restaurant = intent['slots']['restaurant']['value']
         # stores nearby restaurants
@@ -274,15 +274,13 @@ def on_intent(intent_request, session, context):
                 
             if restaurants:
 
-                # initialize restaurant name list
                 for item in restaurants:
                     restaurant_namelist.append(item['name'])
 
                 # fuzzy matching with restaurant name list
-                restaurant = process.extractOne(fuzzy_restaurant, restaurant_namelist)[0]
-                ratio = fuzz.token_set_ratio(restaurant.lower(), fuzzy_restaurant.lower())
+                restaurant = match_fuzzy_string(fuzzy_restaurant, restaurant_namelist)
 
-                if ratio > 50: 
+                if restaurant: 
 
                     for item in restaurants:
                         if item['name'] == restaurant:
@@ -338,6 +336,7 @@ def on_intent(intent_request, session, context):
 
             return build_response(session_attributes, build_speechlet_response(
             card_title, speech_output, reprompt_text, should_end_session))
+
 
 
 def on_session_ended(session_ended_request, session):
