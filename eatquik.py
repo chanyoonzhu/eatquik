@@ -27,11 +27,12 @@ global variable for nearby restaurants
 # restaurant_namelist = []
 # restaurant_infocus = None
 
-# restaurants = get_restaurants_list('401 W Brooks St, Norman, OK, US 73019')
+# restaurants = get_restaurants_list('401 W Brooks St, Norman, OK, US 73019', 50)
 # restaurants_obj = restaurants
 # for restaurant in restaurants:
 #     restaurant_namelist.append(restaurant['name'])
-# fuzzy_restaurant = "afoivtz"
+#     print(restaurant['name'] + ' ')
+# fuzzy_restaurant = "taddei"
 # result = process.extractOne(fuzzy_restaurant, restaurant_namelist)[0]
 # print('result: ' + result + 'fuzzy string: ' + fuzzy_restaurant)
 # ratio = fuzz.token_set_ratio(result.lower(), fuzzy_restaurant.lower())
@@ -42,9 +43,6 @@ global variable for nearby restaurants
 # output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating'])
 # print (output_text)
 
-# restaurants = get_restaurants_list('401 W Brooks St, Norman, OK, US 73019')
-# for restaurant in restaurants:
-#     print(restaurant['name'] + '\n')
 
 
 # card = {
@@ -208,17 +206,12 @@ def on_intent(intent_request, session, context):
 
         if address:
 
-            restaurants = get_restaurants_list(address)
+            restaurants = get_restaurants_list(address, 10)
                 
             if restaurants:
 
                 for restaurant in restaurants:
-                    output_text += restaurant['name'] + ' .'
-
-                """
-                todo - after testing, delete next line and use commented line right above
-                """
-                # output_text = restaurants[0]['name']  
+                    output_text += restaurant['name'] + ' .' 
 
                 card = {
                     "type": "Standard",
@@ -237,8 +230,16 @@ def on_intent(intent_request, session, context):
 
                 return build_response(session_attributes, build_card_response(card, speech_output, reprompt_text, should_end_session))
 
-            #else:
+            else:
                 # fallback response (restaurants not found)
+                session_attributes = {}
+                card_title = ''
+                reprompt_text = ''
+                should_end_session = True
+                speech_output = 'Sorry. Eatquik cannot find any restaurants within 5 miles of where you are. '
+
+                return build_response(session_attributes, build_speechlet_response(
+                card_title, speech_output, reprompt_text, should_end_session))
         
             
         else:
@@ -269,7 +270,7 @@ def on_intent(intent_request, session, context):
 
         if address:
 
-            restaurants = get_restaurants_list(address)
+            restaurants = get_restaurants_list(address, 49)
                 
             if restaurants:
 
@@ -300,7 +301,7 @@ def on_intent(intent_request, session, context):
                         card_title, speech_output, reprompt_text, should_end_session))
 
                 else:
-                    # no matchin restaurant    
+                    # no matching restaurant    
                     session_attributes = {}
                     card_title = ''
                     reprompt_text = ''
@@ -312,8 +313,18 @@ def on_intent(intent_request, session, context):
                     return build_response(session_attributes, build_speechlet_response(
                     card_title, speech_output, reprompt_text, should_end_session))
 
-            #else:
-                # fallback response (restaurants not found)
+            else:
+                # fallback response (list of restaurants not found)
+                session_attributes = {}
+                card_title = ''
+                reprompt_text = ''
+                should_end_session = True
+                speech_output = 'Sorry. The restaurant you asked for is not in this area. '\
+                                'Please choose a restaurant from the list of nearby restaurants we provided and ask again. ' \
+                                'To listen to the list of restaurants nearby. Say. . what are the restaurants nearby. '
+
+                return build_response(session_attributes, build_speechlet_response(
+                card_title, speech_output, reprompt_text, should_end_session))
         
             
         else:
