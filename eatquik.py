@@ -15,30 +15,33 @@ import env
 import requests
 import json
 import pprint
-from yelpcall import query_api
 from userinfo import get_user_address
-from responsehandler import handle_response
+from restaurantslist import get_restaurants_list
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
 """
 global variable for nearby restaurants
 """
-restaurants_obj = None
-restaurant_namelist = []
-restaurant_infocus = None
+# restaurants_obj = None
+# restaurant_namelist = []
+# restaurant_infocus = None
 
-response = query_api('restaurant', '303 Wadsack Dr, Norman, Oklahoma')
-restaurants = handle_response(response)
-restaurants_obj = restaurants
-for restaurant in restaurants:
-    restaurant_namelist.append(restaurant['name'])
-result = process.extractOne("John John Milk Tea", restaurant_namelist)[0]
-for restaurant in restaurants_obj:
-    if restaurant['name'] == result:
-        restaurant_infocus = restaurant
-output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating'])
-print (output_text)
+# response = query_api('restaurant', '303 Wadsack Dr, Norman, Oklahoma')
+# restaurants = handle_response(response)
+# restaurants_obj = restaurants
+# for restaurant in restaurants:
+#     restaurant_namelist.append(restaurant['name'])
+# result = process.extractOne("John John Milk Tea", restaurant_namelist)[0]
+# for restaurant in restaurants_obj:
+#     if restaurant['name'] == result:
+#         restaurant_infocus = restaurant
+# output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating'])
+# print (output_text)
+
+# restaurants = get_restaurants_list('401 W Brooks St, Norman, OK, US 73019')
+# for restaurant in restaurants:
+#     print(restaurant['name'] + '\n')
 
 
 # card = {
@@ -53,6 +56,20 @@ print (output_text)
 
 # obj = build_card_response(card, "haha", " ", True)
 # print(obj['outputSpeech']['text'])
+
+# postmates_key = "ZWZmY2RhOTItZWNjMy00ZGI2LWI5NTQtZjhkOTE0ZTA5NGQ5Og=="
+# customer_id = "cus_Kf3bMZuhfEUbQV"
+# pickup_address = "2363 Van Ness Ave, San Francisco, CA"
+# dropoff_address = "690 5th St, San Francisco, CA"
+# url_params = {
+#     "pickup_address": pickup_address.replace(' ', '+'),
+#     "dropoff_address": dropoff_address.replace(' ', '+')
+# }
+# url =  "https://api.postmates.com/v1/customers/{}/delivery_quotes".format(customer_id)
+# headers = {'Accept': 'application/json',
+#         'Authorization': 'Basic {}'.format(postmates_key)}
+# response = requests.post(url, data = url_params, headers=headers)
+# print(response.json())
 
 
 # --------------- Helpers that build all of the responses ----------------------
@@ -184,33 +201,26 @@ def on_intent(intent_request, session, context):
     if intent_name == 'GetNearbyRestaurants':
 
         address = get_user_address(context)
+        output_text = ""
 
         if address:
-            
-            """
-            restaurant info
-            """
-            response = query_api('restaurant', address)
-            restaurants = handle_response(response)
+
+            restaurants = get_restaurants_list(address)
                 
             if restaurants:
 
-                # add to global restaurants_obj variable
-                restaurants_obj = restaurants
-                output_text = ""
                 for restaurant in restaurants:
-                    restaurant_namelist.append(restaurant['name'])
-                    # output_text += restaurant['name'] + ' .'
+                    output_text += restaurant['name'] + ' .'
 
                 """
                 todo - after testing, delete next line and use commented line right above
                 """
-                output_text = restaurants_obj[0]['name']   
+                # output_text = restaurants[0]['name']  
 
                 card = {
                     "type": "Standard",
                     "title": "restaurants",
-                    "text": restaurants[0]['name'] + "\n",
+                    "text": "\n",
                     "image": {
                         "smallImageUrl": "https://s3-media2.fl.yelpcdn.com/bphoto/MmgtASP3l_t4tPCL1iAsCg/o.jpg",
                         "largeImageUrl": "https://s3-media2.fl.yelpcdn.com/bphoto/MmgtASP3l_t4tPCL1iAsCg/o.jpg"
@@ -225,7 +235,7 @@ def on_intent(intent_request, session, context):
                 return build_response(session_attributes, build_card_response(card, speech_output, reprompt_text, should_end_session))
 
             #else:
-                # fallback response
+                # fallback response (restaurants not found)
         
             
         else:
@@ -241,32 +251,62 @@ def on_intent(intent_request, session, context):
             card_title, speech_output, reprompt_text, should_end_session))
 
     elif intent_name == 'GetRestaurantInfo':
+        # string from Alexa literal string
         fuzzy_restaurant = intent['slots']['restaurant']['value']
+        # stores nearby restaurants
+        restaurant_namelist = []
+        # stores restaurant user asks for
+        restaurant_infocus = None
+        output_text = ""
 
         """
-        matching with global restaurants_namelist and store in restaurant_infocus obj
+        get restaurants
         """
+        address = get_user_address(context)
 
-        """
-        todo - fix bugs in comments below
-        """
-        # restaurant = process.extractOne(fuzzy_restaurant, restaurant_namelist)[0]
-        output_text = fuzzy_restaurant
-        # for item in restaurants_obj:
-        #     if item['name'] == restaurant:
-        #         restaurant_infocus = item
-        # # output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating']) #+ restaurant_infocus['is_closed'] == False
+        if address:
 
-        session_attributes = {}
-        card_title = "restaurant info: " #+ restaurant_infocus
-        reprompt_text = ""
-        should_end_session = False
-    
-        #speech_output = "device id: " + deviceId + "consent token: " + consentToken
-        speech_output = output_text
-    
-        return build_response(session_attributes, build_speechlet_response(
+            restaurants = get_restaurants_list(address)
+                
+            if restaurants:
+
+                # initialize restaurant name list
+                for item in restaurants:
+                    restaurant_namelist.append(item['name'])
+
+                # fuzzy matching with restaurant name list
+                restaurant = process.extractOne(fuzzy_restaurant, restaurant_namelist)[0]
+                for item in restaurants:
+                    if item['name'] == restaurant:
+                        restaurant_infocus = item
+                output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating']) #+ restaurant_infocus['is_closed'] == False
+
+                session_attributes = {}
+                card_title = "restaurant info: " #+ restaurant_infocus
+                reprompt_text = ""
+                should_end_session = False
+                speech_output = output_text
+            
+                return build_response(session_attributes, build_speechlet_response(
+                    card_title, speech_output, reprompt_text, should_end_session))
+                
+
+            #else:
+                # fallback response (restaurants not found)
+        
+            
+        else:
+            # user permission not granted, send out prompt message and a new permission card
+            session_attributes = {}
+            card_title = ''
+            reprompt_text = ''
+            should_end_session = True
+            speech_output = 'eatquick cannot function without address information. '\
+            'To permit access to address information, enable eatquick again, and consent to provide address information in the Alexa app.'
+
+            return build_response(session_attributes, build_speechlet_response(
             card_title, speech_output, reprompt_text, should_end_session))
+
 
 def on_session_ended(session_ended_request, session):
     """ Called when the user ends the session.
