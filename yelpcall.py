@@ -48,6 +48,8 @@ CLIENT_SECRET = 'wWWS7ZPTdFfBtGUK9LTI1WaVXXIq3xQM079LRrav0tPYbuY0LXv9tOpF9Xzd96s
 API_HOST = 'https://api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH = '/v3/businesses/'  # Business ID will come after slash.
+BUSINESS_MATCH_PATH = '/v3/businesses/matches/best'
+TRANSACTION_PATH = '/v3/transactions/delivery/search'
 TOKEN_PATH = '/oauth2/token'
 GRANT_TYPE = 'client_credentials'
 
@@ -137,6 +139,25 @@ def search(bearer_token, term, location, limit):
     }
     return request(API_HOST, SEARCH_PATH, bearer_token, url_params=url_params)
 
+def match_search(bearer_token, term, location):
+    """Query the Search API by a search term and location.
+
+    Args:
+        term (str): The search term passed to the API.
+        location (str): The search location passed to the API.
+
+    Returns:
+        dict: The JSON response from the request.
+    """
+
+    url_params = {
+        'term': term.replace(' ', '+'),
+        'location': location.replace(' ', '+'),
+        'categories': 'restaurants',
+        'sort_by': 'best_match',
+        'limit': 1
+    }
+    return request(API_HOST, SEARCH_PATH, bearer_token, url_params=url_params)
 
 def get_business(bearer_token, business_id):
     """Query the Business API by a business ID.
@@ -151,6 +172,49 @@ def get_business(bearer_token, business_id):
 
     return request(API_HOST, business_path, bearer_token)
 
+def get_business_match(bearer_token, name, city, state, country):
+    """Query the Search API by a search term and location.
+
+    Args:
+        term (str): The search term passed to the API.
+        location (str): The search location passed to the API.
+
+    Returns:
+        dict: The JSON response from the request.
+    """
+
+    url_params = {
+        'name': name.replace(' ', '+'),
+        'city': city.replace(' ', '+'),
+        'state': state.replace(' ', '+'),
+        'country': country.replace(' ', '+')
+    }
+    return request(API_HOST, BUSINESS_MATCH_PATH, bearer_token, url_params=url_params)
+
+def get_transaction_businesses(bearer_token, location):
+    url_params = {
+        'location': location.replace(' ', '+'),
+    }
+    return request(API_HOST, TRANSACTION_PATH, bearer_token, url_params=url_params)
+
+def query_match_api(term, location):
+    """Queries the API by the input values from the user.
+
+    Args:
+        term (str): The search term to query.
+        location (str): The location of the business to query.
+    """
+    bearer_token = obtain_bearer_token(API_HOST, TOKEN_PATH)
+
+    response = match_search(bearer_token, term, location)
+
+    businesses = response.get('businesses')
+
+    if not businesses:
+        print(u'No businesses for {0} in {1} found.'.format(term, location))
+        return
+
+    return response
 
 def query_api(term, location, limit):
     """Queries the API by the input values from the user.
@@ -173,6 +237,17 @@ def query_api(term, location, limit):
 
     return response
 
+def business_match_api(name, city, state, country):
+
+    bearer_token = obtain_bearer_token(API_HOST, TOKEN_PATH)
+    response = get_business_match(bearer_token, name, city, state, country)
+    return response
+
+def transaction_api(location):
+    bearer_token = obtain_bearer_token(API_HOST, TOKEN_PATH)
+    response = get_transaction_businesses(bearer_token, location)
+    return response
+    
 
 def main():
     parser = argparse.ArgumentParser()

@@ -6,32 +6,69 @@ GetNearbyRestaurants what are the restaurants close by
 GetRestaurantInfo tell me more about {IHOP|restaurant}
 GetRestaurantInfo tell me more about {papa john's|restaurant}
 GetRestaurantInfo tell me more about {what a burger|restaurant}
+GetRestaurantInfo tell me more about {A B C D|restaurant}
+GetRestaurantInfo tell me more about {A B C D E|restaurant}
+GetRestaurantInfo tell me more about {A B C D E F|restaurant}
 
 GetRestaurantCategory what food does {IHOP|restaurant} serve
 GetRestaurantCategory what food does {papa john's|restaurant} serve
 GetRestaurantCategory what food does {what a burger|restaurant} serve
+GetRestaurantCategory what food does {A B C D|restaurant} serve
+GetRestaurantCategory what food does {A B C D E|restaurant} serve
+GetRestaurantCategory what food does {A B C D E F|restaurant} serve
 
 GetRestaurantNumber what's the phone number for {IHOP|restaurant}
 GetRestaurantNumber what's the phone number for {papa john's|restaurant}
 GetRestaurantNumber what's the phone number for {what a burger|restaurant}
+GetRestaurantNumber what's the phone number for {A B C D|restaurant}
+GetRestaurantNumber what's the phone number for {A B C D E|restaurant}
+GetRestaurantNumber what's the phone number for {A B C D E F|restaurant}
 
 GetRestaurantStatus is {IHOP|restaurant} open
 GetRestaurantStatus is {papa john's|restaurant} open
 GetRestaurantStatus is {what a burger|restaurant} open
+GetRestaurantStatus is {A B C D|restaurant} open
+GetRestaurantStatus is {A B C D E|restaurant} open
+GetRestaurantStatus is {A B C D E F|restaurant} open
 GetRestaurantStatus is {IHOP|restaurant} closed 
 GetRestaurantStatus is {papa john's|restaurant} closed
 GetRestaurantStatus is {what a burger|restaurant} closed
+GetRestaurantStatus is {A B C D|restaurant} closed 
+GetRestaurantStatus is {A B C D E|restaurant} closed 
+GetRestaurantStatus is {A B C D E F|restaurant} closed 
 
 GetRestaurantAddress what is the address of {IHOP|restaurant}
 GetRestaurantAddress what is the address of {papa john's|restaurant}
 GetRestaurantAddress what is the address of {what a burger|restaurant}
+GetRestaurantAddress what is the address of {A B C D|restaurant}
+GetRestaurantAddress what is the address of {A B C D E|restaurant}
+GetRestaurantAddress what is the address of {A B C D E F|restaurant}
 GetRestaurantAddress where is {IHOP|restaurant}
 GetRestaurantAddress where is {papa john's|restaurant}
 GetRestaurantAddress where is {what a burger|restaurant}
+GetRestaurantAddress where is {A B C D|restaurant}
+GetRestaurantAddress where is {A B C D E|restaurant}
+GetRestaurantAddress where is {A B C D E F|restaurant}
 
 GetDeliveryTime get delivery time for {IHOP|restaurant}
 GetDeliveryTime get delivery time for {papa john's|restaurant}
 GetDeliveryTime get delivery time for {what a burger|restaurant}
+GetDeliveryTime get delivery time for {A B C D|restaurant}
+GetDeliveryTime get delivery time for {A B C D E|restaurant}
+GetDeliveryTime get delivery time for {A B C D E F|restaurant}
 GetDeliveryTime how long to deliver {IHOP|restaurant}
 GetDeliveryTime how long to deliver {papa john's|restaurant}
 GetDeliveryTime how long to deliver {what a burger|restaurant}
+GetDeliveryTime how long to deliver {A B C D|restaurant}
+GetDeliveryTime how long to deliver {A B C D E|restaurant}
+GetDeliveryTime how long to deliver {A B C D E F|restaurant}
+GetDeliveryTime what is the time of delivery for {IHOP|restaurant}
+GetDeliveryTime what is the time of delivery for {papa john's|restaurant}
+GetDeliveryTime what is the time of delivery for {what a burger|restaurant}
+GetDeliveryTime what is the time of delivery for {A B C D|restaurant}
+GetDeliveryTime what is the time of delivery for {A B C D E|restaurant}
+GetDeliveryTime what is the time of delivery for {A B C D E F|restaurant}
+
+GetMoreRestaurants More restaurants
+
+EndSession alexa stop

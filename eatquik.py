@@ -18,27 +18,47 @@ import pprint
 from userinfo import get_user_address
 from restaurantslist import get_restaurants_list
 from fuzzymatching import match_fuzzy_string
+from postmatesapi import get_delivery_info
+from yelpcall import business_match_api
+from yelpcall import transaction_api
 
 """
 global variable for nearby restaurants
 """
+# response = business_match_api("Los+Compadres+Taco+Truck", 'San Francisco', 'CA', 'US')
+# print(response)
+
+# response = transaction_api('401 W Brooks St, Norman, OK, US 73019')
+# print(response)
+
+# restaurants = get_restaurants_list('buger king', '303 Wadsack Dr, Norman', 0)
+# print(restaurants)
+
 # restaurant_namelist = []
 # restaurant_infocus = None
 
-# restaurants = get_restaurants_list('401 W Brooks St, Norman, OK, US 73019', 49)
+# restaurants = get_restaurants_list('restaurant','401 W Brooks St, Norman, OK, US 73019', 49)
 # for restaurant in restaurants:
 #     restaurant_namelist.append(restaurant['name'])
-#     # print(restaurant['name'] + ' ')
-# fuzzy_restaurant = "fusion cafe"
+#     print(restaurant['name'] + ' ')
+# fuzzy_restaurant = "coriander cafe"
 # result = match_fuzzy_string(fuzzy_restaurant, restaurant_namelist)
 # print('result: ' + str(result) + 'fuzzy string: ' + str(fuzzy_restaurant))
 # for restaurant in restaurants:
 #     if restaurant['name'] == result:
 #         restaurant_infocus = restaurant
-# # output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating'])
-# # output_text = restaurant_infocus['phone']
+# output_text = restaurant_infocus['name'] + ' . rating .' + str(restaurant_infocus['rating'])
+# output_text = restaurant_infocus['phone']
 # print (output_text)
-
+# address='303 Wadsack Dr, Norman, OK'
+# pickup_address = ''
+# address_lines = restaurant_infocus['location']['display_address']
+# for line in address_lines:
+#     pickup_address += (line + ' ')
+# response = get_delivery_info(pickup_address, address)
+# delivery_time = response['duration']
+# output_text = 'estimated delivery time is ' + str(delivery_time) + ' minutes'
+# print(output_text)
 
 
 # card = {
@@ -54,19 +74,14 @@ global variable for nearby restaurants
 # obj = build_card_response(card, "haha", " ", True)
 # print(obj['outputSpeech']['text'])
 
-# postmates_key = "ZWZmY2RhOTItZWNjMy00ZGI2LWI5NTQtZjhkOTE0ZTA5NGQ5Og=="
-# customer_id = "cus_Kf3bMZuhfEUbQV"
-# pickup_address = "2363 Van Ness Ave, San Francisco, CA"
-# dropoff_address = "690 5th St, San Francisco, CA"
-# url_params = {
-#     "pickup_address": pickup_address.replace(' ', '+'),
-#     "dropoff_address": dropoff_address.replace(' ', '+')
-# }
-# url =  "https://api.postmates.com/v1/customers/{}/delivery_quotes".format(customer_id)
-# headers = {'Accept': 'application/json',
-#         'Authorization': 'Basic {}'.format(postmates_key)}
-# response = requests.post(url, data = url_params, headers=headers)
-# print(response.json())
+
+# pickup_address = "1241 Alameda Street, Norman, OK 73071"
+# dropoff_address = "303 Wadsack Dr, Norman, OK 73072"
+# response = get_delivery_info(pickup_address, dropoff_address)
+# delivery_time = response['duration'] + ' minutes'
+# print(delivery_time)
+
+
 
 
 # --------------- Helpers that build all of the responses ----------------------
@@ -195,24 +210,38 @@ def on_intent(intent_request, session, context):
     intent = intent_request["intent"]
     intent_name = intent_request["intent"]["name"]
 
-    if intent_name == 'GetNearbyRestaurants':
+    if intent_name == 'GetNearbyRestaurants' or intent_name == 'GetMoreRestaurants':
 
         address = get_user_address(context)
         output_text = ""
 
         if address:
 
-            restaurants = get_restaurants_list(address, 10)
+            restaurants = get_restaurants_list('restaurant', address, 20)
+            if intent_name == 'GetNearbyRestaurants':
+                restaurants = restaurants[0:11]
+            elif intent_name == 'GetMoreRestaurants':
+                restaurants = restaurants[11:]
                 
             if restaurants:
-
+                
+                formatted_text = ''
+                
                 for restaurant in restaurants:
                     output_text += restaurant['name'] + ' .' 
+                    formatted_text += restaurant['name'] + "\n"
+
+                if intent_name == 'GetNearbyRestaurants':
+                    output_text += "To ask for more information for a restaurant, Say . tell me more about with the name of the restaurant" \
+                            "Or you can ask for its phone number or address or if it is open. To hear more restaurant options, say . more restaurants. "
+                elif intent_name == 'GetMoreRestaurants':
+                    output_text += "To ask for more information for a restaurant, Say . tell me more about with the name of the restaurant" \
+                            "Or you can ask for its phone number or address or if it is open. "
 
                 card = {
                     "type": "Standard",
                     "title": "restaurants",
-                    "text": "\n",
+                    "text": formatted_text,
                     "image": {
                         "smallImageUrl": "https://s3-media2.fl.yelpcdn.com/bphoto/MmgtASP3l_t4tPCL1iAsCg/o.jpg",
                         "largeImageUrl": "https://s3-media2.fl.yelpcdn.com/bphoto/MmgtASP3l_t4tPCL1iAsCg/o.jpg"
@@ -271,7 +300,7 @@ def on_intent(intent_request, session, context):
 
         if address:
 
-            restaurants = get_restaurants_list(address, 49)
+            restaurants = get_restaurants_list('restaurant', address, 49)
                 
             if restaurants:
 
@@ -288,7 +317,12 @@ def on_intent(intent_request, session, context):
                             restaurant_infocus = item
 
                     if intent_name == 'GetRestaurantInfo':
-                        output_text = (restaurant_infocus['name'] 
+                        categories = restaurant_infocus['categories']
+                        category_list = ''
+                        for category in categories:
+                            category_list += category['title'] + '. .'
+                        output_text = (restaurant_infocus['name']  + ' . '
+                                        + category_list
                                         + ' . rating . ' + str(restaurant_infocus['rating']) 
                                         + '. and is open now .' if (restaurant_infocus['is_closed'] == False) else '. and is closed now .')
                     elif intent_name == 'GetRestaurantCategory':
@@ -304,12 +338,21 @@ def on_intent(intent_request, session, context):
                             output_text += (digit + ' ')
                     elif intent_name == 'GetRestaurantStatus':
                         output_text = restaurant_infocus['name']
-                        output_text += '. is now open .' if (restaurant_infocus['is_closed'] == False) else '. and is closed now .'
+                        output_text += '. is now open .' if (restaurant_infocus['is_closed'] == False) else '. is closed .'
                     elif intent_name == 'GetRestaurantAddress':
                         output_text = restaurant_infocus['name'] + " . is located at . "
                         address_lines = restaurant_infocus['location']['display_address']
                         for line in address_lines:
                             output_text += (line + " . ")
+                    elif intent_name == 'GetDeliveryTime':
+                        # code for postmates
+                        pickup_address = ''
+                        address_lines = restaurant_infocus['location']['display_address']
+                        for line in address_lines:
+                            pickup_address += (line + ' ')
+                        response = get_delivery_info(pickup_address, address)
+                        delivery_time = response['duration']
+                        output_text = 'estimated delivery time is ' + str(delivery_time) + ' minutes according to postmate'
 
                     session_attributes = {}
                     card_title = "restaurant info: " #+ restaurant_infocus
@@ -359,6 +402,15 @@ def on_intent(intent_request, session, context):
             return build_response(session_attributes, build_speechlet_response(
             card_title, speech_output, reprompt_text, should_end_session))
 
+    elif intent_name == 'EndSession':
+        session_attributes = {}
+        card_title = 'Good Bye!'
+        reprompt_text = ''
+        should_end_session = True
+        speech_output = 'Good bye!'
+
+        return build_response(session_attributes, build_speechlet_response(
+        card_title, speech_output, reprompt_text, should_end_session))
 
 
 def on_session_ended(session_ended_request, session):
@@ -369,6 +421,7 @@ def on_session_ended(session_ended_request, session):
     print("on_session_ended requestId=" + session_ended_request['requestId'] +
           ", sessionId=" + session['sessionId'])
     # add cleanup logic here
+    handle_session_end_request()
 
 
 # --------------- Main handler ------------------

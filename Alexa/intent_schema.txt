@@ -4,6 +4,12 @@
       "intent": "GetNearbyRestaurants"
     },
     {
+      "intent": "EndSession"
+    },
+    {
+      "intent": "GetMoreRestaurants"
+    },
+    {
       "intent": "GetRestaurantInfo",
       "slots": [
         {
